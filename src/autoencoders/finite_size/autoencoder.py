@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import numpy as np
 from torch.utils.data import DataLoader
+from ..\train_autoencoder import train_autoencoder
 TAM=16
 print(torch.cuda.is_available())
 NUM_EPOCHS = 7000
@@ -112,43 +113,16 @@ print(net)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-def train(net, trainloader, NUM_EPOCHS,var_break):
-    train_loss = []
-    epoch=0
-    while epoch<NUM_EPOCHS:
-        running_loss = 0.0
-        for data in trainloader:
-            img = data
-            img = img.to(device)
-            img = img.view(img.size(0), -1)
-            optimizer.zero_grad()
-            outputs = net(img)
-            outputs.int()
-            outputs.float()
-            loss = criterion(outputs, img)
-            loss.backward()
-            outputs.float()
-            optimizer.step()
-            running_loss += loss.item()
-        loss = running_loss / len(trainloader)
-        train_loss.append(loss)
-        print('Epoch {} of {}, Train Loss: {:.3f}'.format(
-            epoch+1, NUM_EPOCHS, loss)) 
-        if loss<var_break:
-            break
-        elif epoch>0.095*NUM_EPOCHS:
-            NUM_EPOCHS+=500
-        epoch+=1
-    return train_loss
+
 device = get_device()
 net.to(device)
 trainset_new=torch.as_tensor(s400).float()
 trainloader_new = DataLoader(trainset_new,batch_size=16,shuffle=True)
-train_loss_new = train(net, trainloader_new, 4000,0.36)
+train_loss_new = train_autoencoder(net, trainloader_new, 4000,0.36,device,optimizer,criterion)
 print('1st stage DONE, all samples: begin')
-train_loss = train(net, trainloader, 6000,0.2)
+train_loss = train_autoencoder(net, trainloader, 6000,0.2,device,optimizer,criterion)
 optimizer = optim.Adam(net.parameters(), lr=5e-5)
-train_loss = train(net, trainloader, 20000,0.07)
+train_loss = train_autoencoder(net, trainloader, 20000,0.07,device,optimizer,criterion)
 plt.figure()
 plt.plot(train_loss)
 plt.title('Train Loss')
