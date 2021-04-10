@@ -18,21 +18,28 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import numpy as np
 from torch.utils.data import DataLoader
-from ..\train_autoencoder import train_autoencoder
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+ 
+from autoencoder_utils.module import train_autoencoder
+
+
 TAM=16
 print(torch.cuda.is_available())
 NUM_EPOCHS = 7000
 LEARNING_RATE = 1e-4
 BATCH_SIZE =28
-s400=np.loadtxt('C:\\Users\\Danilo_Elias\\Downloads\\Samples_{}x{}.txt'.format(TAM,TAM),dtype='int',max_rows=400)
-samples=np.loadtxt('C:\\Users\\Danilo_Elias\\Downloads\\Samples_{}x{}.txt'.format(TAM,TAM),dtype='int',max_rows=1400)
-aux1=np.copy(s400)
-aux2=np.copy(samples)
-while (np.shape(s400)[1]<128*128):
-    s400=np.concatenate((s400,aux1),1)
-    samples=np.concatenate((samples,aux2),1)
+orig_samples_400=np.loadtxt('..\\..\\..\\training_data\\example\\{}x{}\\Samples_PUD_{}.txt'.format(TAM,TAM,TAM),dtype='int',max_rows=400)
+orig_samples_1400=np.loadtxt('..\\..\\..\\training_data\\example\\{}x{}\\Samples_PUD_{}.txt'.format(TAM,TAM,TAM),dtype='int',max_rows=1400)
+samples_400=np.copy(orig_samples_400)
+samples_1400=np.copy(orig_samples_1400)
+while (np.shape(samples_400)[1]<128*128):
+    samples_400=np.concatenate((samples_400,orig_samples_400),1)
+    samples_1400=np.concatenate((samples_1400,orig_samples_1400),1)
 
-trainset=torch.as_tensor(samples).float()
+trainset=torch.as_tensor(samples_1400).float()
 
  
 trainloader = DataLoader(
@@ -116,7 +123,7 @@ optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
 device = get_device()
 net.to(device)
-trainset_new=torch.as_tensor(s400).float()
+trainset_new=torch.as_tensor(samples_1400).float()
 trainloader_new = DataLoader(trainset_new,batch_size=16,shuffle=True)
 train_loss_new = train_autoencoder(net, trainloader_new, 4000,0.36,device,optimizer,criterion)
 print('1st stage DONE, all samples: begin')

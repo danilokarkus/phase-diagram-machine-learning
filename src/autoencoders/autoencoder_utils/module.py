@@ -4,7 +4,6 @@ Created on Sat Apr 10 10:22:24 2021
 
 @author: Danilo_Elias
 """
-
 def train_autoencoder(net, trainloader, NUM_EPOCHS,var_break,device,optimizer,criterion):
     train_loss = []
     epoch=0
@@ -25,8 +24,7 @@ def train_autoencoder(net, trainloader, NUM_EPOCHS,var_break,device,optimizer,cr
             running_loss += loss.item()
         loss = running_loss / len(trainloader)
         train_loss.append(loss)
-        print('Epoch {} of {}, Train Loss: {:.3f}'.format(
-            epoch+1, NUM_EPOCHS, loss)) 
+        print('Epoch {} of {}, Train Loss: {:.3f}'.format(epoch+1, NUM_EPOCHS, loss)) 
         if loss<var_break:
             break
         elif epoch>0.95*NUM_EPOCHS:
