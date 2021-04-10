@@ -29,7 +29,7 @@ def train_autoencoder(net, trainloader, NUM_EPOCHS,var_break,device,optimizer,cr
             epoch+1, NUM_EPOCHS, loss)) 
         if loss<var_break:
             break
-        elif epoch>0.095*NUM_EPOCHS:
+        elif epoch>0.95*NUM_EPOCHS:
             NUM_EPOCHS+=500
         epoch+=1
     return train_loss
